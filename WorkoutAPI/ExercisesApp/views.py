@@ -8,7 +8,7 @@ from rest_framework import status
 
 # Create your views here.
 @api_view(['GET', 'POST'])
-def exercise_list(request):
+def exercise_list(request, format=None):
     if request.method == 'GET':
         exercises = Exercises.objects.all() # get exercises
         serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
@@ -21,7 +21,7 @@ def exercise_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def exercise_detail(request, id):
+def exercise_detail(request, id, format=None):
     # id comes from the params in the views
     try:
         exercise = Exercises.objects.get(pk=id)
