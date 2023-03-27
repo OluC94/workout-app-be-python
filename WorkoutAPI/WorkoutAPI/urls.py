@@ -20,4 +20,5 @@ from ExercisesApp import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('exercises/', views.exercise_list),
+    path('exercises/<int:id>/', views.exercise_detail),
 ]

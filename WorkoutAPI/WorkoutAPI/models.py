@@ -5,7 +5,7 @@ class Exercises(models.Model):
     ExerciseName = models.CharField(max_length=100)
     Muscle = models.CharField(max_length=100)
     Equipment = models.CharField(max_length=100)
-    Instructions = models.CharField(max_length=1000)
+    Instructions = models.CharField(max_length=2000)
 
     def __str__(self):
         return self.ExerciseName + " - " + self.Equipment

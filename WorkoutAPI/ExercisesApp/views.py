@@ -19,3 +19,26 @@ def exercise_list(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def exercise_detail(request, id):
+    # id comes from the params in the views
+    try:
+        exercise = Exercises.objects.get(pk=id)
+    except Exercises.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = ExerciseSerializer(exercise)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = ExerciseSerializer(exercise, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        exercise.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
