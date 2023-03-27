@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'ExercisesApp.apps.ExercisesappConfig',
+    'WorkoutAPI',
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True # specifie whitelist domains in production
