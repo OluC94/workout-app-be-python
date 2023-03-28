@@ -1,13 +1,13 @@
-import requests
-from my_secrets import url, key, host
+# import requests
+# from my_secrets import url, key, host
 
-headers = {
-	"X-RapidAPI-Key": key,
-	"X-RapidAPI-Host": host
-}
+# headers = {
+# 	"X-RapidAPI-Key": key,
+# 	"X-RapidAPI-Host": host
+# }
 
-querystring = {'muscle': 'glutes'}
+# querystring = {'muscle': 'glutes'}
 
-response = requests.request("GET", url, headers=headers, params=querystring)
+# response = requests.request("GET", url, headers=headers, params=querystring)
 
-print(response.text)
+# print(response.text)
