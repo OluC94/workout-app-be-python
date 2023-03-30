@@ -6,10 +6,10 @@ class TestUrls(SimpleTestCase):
 
     def test_exercises_url_resolves(self):
         url = reverse('exercises')
-        print(resolve(url))
+        # print(resolve(url))
         self.assertEquals(resolve(url).func, exercise_list)
 
     def test_exercise_detail_resolves(self):
         url = reverse('exercise_detail', args=[1])
-        print(resolve(url))
+        # print(resolve(url))
         self.assertEquals(resolve(url).func, exercise_detail)
