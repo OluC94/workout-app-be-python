@@ -15,6 +15,10 @@ def exercise_list(request, format=None):
         return JsonResponse({'exercises': serializer.data})
     
     elif request.method == 'POST':
+
+        if not bool(request.data):
+            return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = ExerciseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

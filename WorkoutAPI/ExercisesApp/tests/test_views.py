@@ -36,6 +36,12 @@ class TestViews(TestCase):
         self.assertEquals(response.status_code, 201)
         self.assertEquals(response.data['ExerciseName'], 'Kettlebell sumo deadlift high pull')
 
+    def test_exercise_list_POST_no_data(self):
+        response = self.client.post(self.exercises_url)
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data, {"msg": "No content submitted"})
+
 
     def test_exercise_detail_GET(self):
         response = self.client.get(self.exercise_detail_url)
