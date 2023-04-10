@@ -58,17 +58,33 @@ class TestViews(TestCase):
             Instructions = "instructions for sumo deadlifts here..."
         )
 
-        exercise_to_delete_path = reverse('exercise_detail', args=[2]) # exercises/2/
-        exercise_to_delete_data = self.client.get(exercise_to_delete_path) # exercise 2 data
-
         response = self.client.delete(self.exercise_detail_url, json.dumps({
-            'id': exercise_to_delete_data.data['ExerciseId']
+            'id': 2
         }))
 
         self.assertEquals(response.status_code, 204)
-        print(self.number_of_exercises, Exercises.objects.count())
         self.assertEquals(Exercises.objects.count(), 1)
 
-        
+    def test_exercise_detail_DELETE_non_existent_id(self):
+
+        Exercises.objects.create(
+            ExerciseId = 2,
+            ExerciseName = "Barbell sumo deadlift",
+            Muscle = "lower_back",
+            Equipment = "barbell",
+            Instructions = "instructions for sumo deadlifts here..."
+        )
+
+        response = self.client.delete(reverse('exercise_detail', args=[53]))
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(Exercises.objects.count(), 2)
+    
+    def test_exercise_detail_PUT_updates_data(self):
+        new_info = {"Instructions": "Updated instructions for the exercise"}
+
+        # Next steps: 1 - find right status code (201?), 
+        # in views.py, set the exercise as a variable, update with whatever was sent
+
 
 

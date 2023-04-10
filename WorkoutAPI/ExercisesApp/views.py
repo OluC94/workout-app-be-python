@@ -27,6 +27,9 @@ def exercise_list(request, format=None):
 @api_view(['GET', 'PUT', 'DELETE'])
 def exercise_detail(request, id, format=None):
     # id comes from the params in the views
+    if type(id) is not int:
+        return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
         exercise = Exercises.objects.get(pk=id)
     except Exercises.DoesNotExist:
@@ -44,5 +47,6 @@ def exercise_detail(request, id, format=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
+        print("id: ", id)
         exercise.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
