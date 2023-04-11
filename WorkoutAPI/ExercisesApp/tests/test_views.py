@@ -81,10 +81,25 @@ class TestViews(TestCase):
         self.assertEquals(Exercises.objects.count(), 2)
     
     def test_exercise_detail_PUT_updates_data(self):
-        new_info = {"Instructions": "Updated instructions for the exercise"}
 
-        # Next steps: 1 - find right status code (201?), 
-        # in views.py, set the exercise as a variable, update with whatever was sent
+        Exercises.objects.create(
+            ExerciseId = 2,
+            ExerciseName = "Barbell sumo deadlift",
+            Muscle = "lower_back",
+            Equipment = "barbell",
+            Instructions = "instructions for sumo deadlifts here..."
+        )
+
+        new_info = {
+            "ExerciseName": "Barbell sumo deadlift",
+            "Muscle": "lower_back",
+            "Equipment": "barbell",
+            "Instructions": "Updated instructions for the exercise"}
+
+        response = self.client.put(reverse('exercise_detail', args=[2]), data=json.dumps(new_info), content_type = 'application/json')
+
+        self.assertEquals(response.data['ExerciseName'], "Barbell sumo deadlift")
+        self.assertEquals(response.data['Instructions'], "Updated instructions for the exercise")
 
 
 
