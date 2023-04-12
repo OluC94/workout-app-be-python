@@ -101,5 +101,66 @@ class TestViews(TestCase):
         self.assertEquals(response.data['ExerciseName'], "Barbell sumo deadlift")
         self.assertEquals(response.data['Instructions'], "Updated instructions for the exercise")
 
+    def test_exercise_detail_PUT_non_existent_id(self):
+        new_info = {
+            "ExerciseName": "Barbell sumo deadlift",
+            "Muscle": "lower_back",
+            "Equipment": "barbell",
+            "Instructions": "Updated instructions for the exercise"}
+        
+        curr_count = Exercises.objects.count()
 
+        response = self.client.put(reverse('exercise_detail', args=[2000]), data=json.dumps(new_info), content_type = 'application/json')
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(curr_count, Exercises.objects.count())
+
+    def test_exercise_detail_PUT_invalid_data_key(self):
+
+        Exercises.objects.create(
+            ExerciseId = 2,
+            ExerciseName = "Barbell sumo deadlift",
+            Muscle = "lower_back",
+            Equipment = "barbell",
+            Instructions = "instructions for sumo deadlifts here..."
+        )
+
+        new_info = {
+            "ExerciseName": "Barbell sumo deadlift",
+            "Invalid_Key": "lower_back",
+            "Equipment": "barbell",
+            "Instructions": "Updated instructions for the exercise"}
+        
+        response = self.client.put(reverse('exercise_detail', args=[2]), data=json.dumps(new_info), content_type = 'application/json')
+
+        self.assertEquals(response.status_code, 400)
+
+        response_verify = self.client.get(reverse('exercise_detail', args=[2]))
+        self.assertEquals(response_verify.data['Instructions'], 'instructions for sumo deadlifts here...')
+
+    def test_exercise_detail_PUT_invalid_data_value(self):
+
+        Exercises.objects.create(
+            ExerciseId = 2,
+            ExerciseName = "Barbell sumo deadlift",
+            Muscle = "lower_back",
+            Equipment = "barbell",
+            Instructions = "instructions for sumo deadlifts here..."
+        )
+
+        new_info = {
+            "ExerciseName": "Barbell sumo deadlift",
+            "Muscle": True,
+            "Equipment": "barbell",
+            "Instructions": "Updated instructions for the exercise"}
+        
+        response = self.client.put(reverse('exercise_detail', args=[2]), data=json.dumps(new_info), content_type = 'application/json')
+
+        print(type(response.data['Muscle']))
+        self.assertEquals(response.status_code, 400)
+
+        response_verify = self.client.get(reverse('exercise_detail', args=[2]))
+
+        self.assertEquals(response_verify.data['Instructions'], 'instructions for sumo deadlifts here...')
+        self.assertEquals(response_verify.data['Muscle'], 'lower_back')
 
