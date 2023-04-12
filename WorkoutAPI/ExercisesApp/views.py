@@ -15,6 +15,10 @@ def exercise_list(request, format=None):
         return JsonResponse({'exercises': serializer.data})
     
     elif request.method == 'POST':
+
+        if not bool(request.data):
+            return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = ExerciseSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -23,6 +27,9 @@ def exercise_list(request, format=None):
 @api_view(['GET', 'PUT', 'DELETE'])
 def exercise_detail(request, id, format=None):
     # id comes from the params in the views
+    if type(id) is not int:
+        return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
         exercise = Exercises.objects.get(pk=id)
     except Exercises.DoesNotExist:
@@ -36,7 +43,7 @@ def exercise_detail(request, id, format=None):
         serializer = ExerciseSerializer(exercise, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
