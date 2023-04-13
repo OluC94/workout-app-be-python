@@ -3,7 +3,7 @@ from django.urls import reverse
 from WorkoutAPI.models import Exercises
 import json
 
-class TestViews(TestCase):
+class TestExerciseViews(TestCase):
 
     # run before everytest
     def setUp(self):
@@ -163,3 +163,35 @@ class TestViews(TestCase):
         self.assertEquals(response_verify.data['Instructions'], 'instructions for sumo deadlifts here...')
         self.assertEquals(response_verify.data['Muscle'], 'lower_back')
 
+class TestDaysViews(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.days_url = reverse('days')
+        self.exercise_1 = Exercises.objects.create(
+			ExerciseName = "Bicep Curl",
+			Muscle = "biceps",
+			Equipment = "barbell",
+			Instructions = "Perform a curl"
+        )
+        self.exercise_2 = Exercises.objects.create(
+			ExerciseName = "Incline Hammer Curls",
+		    Muscle = "biceps",
+			Equipment = "dumbbell",
+			Instructions = "Seat yourself on an incline bench with a dumbbell in each hand. You should pressed firmly against he back with your feet together. Allow the dumbbells to hang straight down at your side..."
+        )
+    
+    def test_days_POST_adds_new_day(self):
+
+        new_day = {
+            'DayName': 'Day 1',
+            'DayExercises': [self.exercise_1, self.exercise_2]
+        }
+
+        response = self.client.post(self.days_url, new_day)
+
+        self.assertEquals(response.status_code, 201)
+        self.assertEquals(response.data['DayName'], 'Day 1')
+        self.assertEquals(response.data['DayExercises'][0]['Equipment'], 'barbell')
+
+        

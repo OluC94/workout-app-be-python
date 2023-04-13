@@ -53,4 +53,4 @@ def exercise_detail(request, id, format=None):
 @api_view(['GET', 'POST'])
 def day_list(request, format=None):
     print(request.method)
-    return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_201_CREATED)
