@@ -13,12 +13,18 @@ class Exercises(models.Model):
 class Day(models.Model):
     DayId = models.AutoField(primary_key=True)
     DayName = models.CharField(max_length=100)
-    DayExercises = models.ManyToManyField(Exercises)
+    DayExercises = models.ManyToManyField(Exercises, blank=True)
+
+    def __str__(self):
+        return self.DayName
 
 class Routines(models.Model):
     RoutineId = models.AutoField(primary_key=True)
     RoutineName = models.CharField(max_length=100)
     RoutineDays = models.ManyToManyField(Day)
+
+    def __str__(self):
+        return self.RoutineName
 
 
 class Workouts(models.Model):

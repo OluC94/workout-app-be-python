@@ -49,3 +49,8 @@ def exercise_detail(request, id, format=None):
     elif request.method == 'DELETE':
         exercise.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+def day_list(request, format=None):
+    print(request.method)
+    return Response(status=status.HTTP_200_OK)
