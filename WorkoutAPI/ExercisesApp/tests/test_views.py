@@ -156,7 +156,6 @@ class TestViews(TestCase):
         
         response = self.client.put(reverse('exercise_detail', args=[2]), data=json.dumps(new_info), content_type = 'application/json')
 
-        print(type(response.data['Muscle']))
         self.assertEquals(response.status_code, 400)
 
         response_verify = self.client.get(reverse('exercise_detail', args=[2]))

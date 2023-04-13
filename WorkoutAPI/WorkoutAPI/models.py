@@ -10,10 +10,15 @@ class Exercises(models.Model):
     def __str__(self):
         return self.ExerciseName + " - " + self.Equipment
 
+class Day(models.Model):
+    DayId = models.AutoField(primary_key=True)
+    DayName = models.CharField(max_length=100)
+    DayExercises = models.ManyToManyField(Exercises)
 
 class Routines(models.Model):
     RoutineId = models.AutoField(primary_key=True)
     RoutineName = models.CharField(max_length=100)
+    RoutineDays = models.ManyToManyField(Day)
 
 
 class Workouts(models.Model):
