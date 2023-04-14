@@ -190,6 +190,8 @@ class TestDaysViews(TestCase):
 
         response = self.client.post(self.days_url, new_day)
 
+        print(response.data)
+
         self.assertEquals(response.status_code, 201)
         self.assertEquals(response.data['DayName'], 'Day 1')
         self.assertEquals(response.data['DayExercises'][0]['Equipment'], 'barbell')

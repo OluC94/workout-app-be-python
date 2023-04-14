@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from WorkoutAPI.models import Exercises
-from WorkoutAPI.serializers import ExerciseSerializer
+from WorkoutAPI.serializers import ExerciseSerializer, DaySerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -52,5 +52,18 @@ def exercise_detail(request, id, format=None):
 
 @api_view(['GET', 'POST'])
 def day_list(request, format=None):
-    print(request.method)
-    return Response(status=status.HTTP_201_CREATED)
+    if request.method == 'GET':
+        print(request.method)
+        return Response({"msg":"get request"})
+    
+    elif request.method == 'POST':
+            
+        if not bool(request.data):
+            return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
+
+        print('req data -->', request.data)
+        serializer = DaySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            print('serialized data --->', serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
