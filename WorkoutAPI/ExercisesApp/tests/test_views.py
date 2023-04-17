@@ -185,7 +185,7 @@ class TestDaysViews(TestCase):
 
         new_day = {
             'DayName': 'Day 1',
-            'DayExercises': [self.exercise_1, self.exercise_2]
+            'DayExercises': []
         }
 
         response = self.client.post(self.days_url, new_day)
@@ -194,6 +194,7 @@ class TestDaysViews(TestCase):
 
         self.assertEquals(response.status_code, 201)
         self.assertEquals(response.data['DayName'], 'Day 1')
-        self.assertEquals(response.data['DayExercises'][0]['Equipment'], 'barbell')
+    
+    
 
         

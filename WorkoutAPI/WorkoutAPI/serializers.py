@@ -13,3 +13,4 @@ class DaySerializer(serializers.ModelSerializer):
     class Meta:
         model = Day
         fields = ['DayId', 'DayName', 'DayExercises']
+        depth = 1
