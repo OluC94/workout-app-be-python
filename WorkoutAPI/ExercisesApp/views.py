@@ -61,7 +61,8 @@ def day_list(request, format=None):
         if not bool(request.data):
             return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
 
-        print('req data -->', request.data)
+        print('req data -->', request.data['DayExercises'])
+
         serializer = DaySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()

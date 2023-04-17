@@ -8,8 +8,7 @@ class ExerciseSerializer(serializers.ModelSerializer):
 
 class DaySerializer(serializers.ModelSerializer):
     
-    exercises_dataset = Exercises.objects.all()
-    DayExercises = ExerciseSerializer(exercises_dataset, read_only=True, many=True, required=False)
+    DayExercises = ExerciseSerializer(source='Exercises', read_only=True, many=True)
 
     class Meta:
         model = Day
