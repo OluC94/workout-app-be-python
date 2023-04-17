@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from WorkoutAPI.models import Exercises
+from WorkoutAPI.models import Exercises, Day
 from WorkoutAPI.serializers import ExerciseSerializer, DaySerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -53,8 +53,10 @@ def exercise_detail(request, id, format=None):
 @api_view(['GET', 'POST'])
 def day_list(request, format=None):
     if request.method == 'GET':
-        print(request.method)
-        return Response({"msg":"get request"})
+        days = Day.objects.all()
+        serializer = DaySerializer(days, many=True)
+        print('ser data  -->', serializer.data)
+        return JsonResponse({'days': serializer.data})
     
     elif request.method == 'POST':
             

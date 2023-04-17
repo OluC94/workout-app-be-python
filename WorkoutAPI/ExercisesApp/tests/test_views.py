@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from WorkoutAPI.models import Exercises
+from WorkoutAPI.models import Exercises, Day
 import json
 
 class TestExerciseViews(TestCase):
@@ -169,17 +169,24 @@ class TestDaysViews(TestCase):
         self.client = Client()
         self.days_url = reverse('days')
         self.exercise_1 = Exercises.objects.create(
+            ExerciseId = 555,
 			ExerciseName = "Bicep Curl",
 			Muscle = "biceps",
 			Equipment = "barbell",
 			Instructions = "Perform a curl"
         )
         self.exercise_2 = Exercises.objects.create(
+            ExerciseId = 556,
 			ExerciseName = "Incline Hammer Curls",
 		    Muscle = "biceps",
 			Equipment = "dumbbell",
 			Instructions = "Seat yourself on an incline bench with a dumbbell in each hand. You should pressed firmly against he back with your feet together. Allow the dumbbells to hang straight down at your side..."
         )
+        self.day_example = Day.objects.create(
+            DayName = 'Test Day',
+        )
+        self.day_example.DayExercises.add(555, 556)
+        print('setup -->', self.day_example.DayExercises.all() )
     
     def test_days_POST_adds_new_day(self):
 
@@ -190,11 +197,17 @@ class TestDaysViews(TestCase):
 
         response = self.client.post(self.days_url, new_day)
 
-        print(response.data)
-
         self.assertEquals(response.status_code, 201)
         self.assertEquals(response.data['DayName'], 'Day 1')
     
-    
+    # def test_days_GET(self):
+
+    #     response = self.client.get(self.days_url)
+
+    #     print("response data --> ", response.json())
+    #     print(len( response.json()['days']))
+
+    #     self.assertEquals(response.status_code, 200)
+    #     self.assertGreater(len( response.json()['days']), 0)
 
         
