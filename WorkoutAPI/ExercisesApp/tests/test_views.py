@@ -196,14 +196,23 @@ class TestDaysViews(TestCase):
             'DayExercises': []
         }
 
-        print(new_day)
-
         response = self.client.post(self.days_url, new_day)
-        print("response created", response.data)
 
         self.assertEquals(response.status_code, 201)
         self.assertEquals(response.data['DayName'], 'Day 1')
         self.assertEquals(len(response.data['DayExercises']), 0)
+    
+    def test_days_POST_no_content(self):
+
+        new_day = {}
+
+        current_days = Day.objects.all()
+        response = self.client.post(self.days_url, new_day)
+        
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'No content submitted')
+        self.assertEquals(len(Day.objects.all()), len(current_days))
     
     # def test_days_GET(self):
 
