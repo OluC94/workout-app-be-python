@@ -65,6 +65,12 @@ def day_list(request, format=None):
 
         serializer = DaySerializer(data=request.data)
         
+
+        # make sure the Day Exercises comes in blank when creating a new day
+        if 'DayExercises' in request.data:
+            return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

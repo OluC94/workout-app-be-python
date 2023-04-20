@@ -191,6 +191,8 @@ class TestDaysViews(TestCase):
 
         # since all days will initially be input, make the name the only thing thats input, have the views POST dayname + dayexercises[]
 
+        current_days = Day.objects.all()
+        assertion_length = len(current_days) + 1
         new_day = {
             'DayName': 'Day 1',
             'DayExercises': []
@@ -201,6 +203,7 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.status_code, 201)
         self.assertEquals(response.data['DayName'], 'Day 1')
         self.assertEquals(len(response.data['DayExercises']), 0)
+        self.assertEquals(len(Day.objects.all()), assertion_length)
     
     def test_days_POST_no_content(self):
 
@@ -228,7 +231,19 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['msg'], 'Bad request')
         self.assertEquals(len(Day.objects.all()), len(current_days))
 
+    def test_days_POST_invalid_value(self):
 
+        new_day = {
+            'DayName': 'Day to test',
+            'DayExercises': 'Invalid key'
+        }
+
+        current_days = Day.objects.all()
+        response = self.client.post(self.days_url, new_day)
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'Bad request')
+        self.assertEquals(len(Day.objects.all()), len(current_days))
 
     
     # def test_days_GET(self):
