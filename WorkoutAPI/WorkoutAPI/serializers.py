@@ -23,4 +23,6 @@ class DaySerializer(serializers.ModelSerializer):
             exercise = Exercises.objects.get_or_create(**data)
             day.DayExercises.add(exercise)
         return day
+    
+    # def update()
         

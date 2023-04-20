@@ -295,4 +295,19 @@ class TestDaysViews(TestCase):
 
         self.assertEquals(response.status_code, 404)
         self.assertEquals(Day.objects.count(), initial_day_count)
-        
+    
+    def test_day_detail_PUT_updates_day(self):
+
+        Day.objects.create(
+            DayId = 234,
+            DayName = 'Day to update'
+        )
+
+        new_info = {'DayName': 'Updated day name'}
+
+        # response = self.client.put(reverse('exercise_detail', args=[2]), data=json.dumps(new_info), content_type = 'application/json')
+
+        response = self.client.put(reverse('day_detail', args=[234]), data=json.dumps(new_info), content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['DayName'], 'Updated day name')
