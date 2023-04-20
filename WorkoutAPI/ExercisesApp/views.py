@@ -55,7 +55,6 @@ def day_list(request, format=None):
     if request.method == 'GET':
         days = Day.objects.all()
         serializer = DaySerializer(days, many=True)
-        print('ser data  -->', serializer.data)
         return JsonResponse({'days': serializer.data})
     
     elif request.method == 'POST':
@@ -65,7 +64,6 @@ def day_list(request, format=None):
 
         serializer = DaySerializer(data=request.data)
         
-
         # make sure the Day Exercises comes in blank when creating a new day
         if 'DayExercises' in request.data:
             return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
@@ -75,3 +73,7 @@ def day_list(request, format=None):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET', 'PUT', 'DELETE'])
+def day_detail(request, id, format=None):
+    return Response({"msg": "within day_detail"})

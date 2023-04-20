@@ -244,16 +244,14 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data['msg'], 'Bad request')
         self.assertEquals(len(Day.objects.all()), len(current_days))
-
     
-    # def test_days_GET(self):
+    def test_days_GET(self):
 
-    #     response = self.client.get(self.days_url)
+        response = self.client.get(self.days_url)
 
-    #     print("response data --> ", response.json())
-    #     print(len( response.json()['days']))
-
-    #     self.assertEquals(response.status_code, 200)
-    #     self.assertGreater(len( response.json()['days']), 0)
+        self.assertEquals(response.status_code, 200)
+        self.assertGreater(len(response.json()['days']), 0)
+    
+    
 
         
