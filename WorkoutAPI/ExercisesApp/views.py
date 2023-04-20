@@ -85,4 +85,9 @@ def day_detail(request, id, format=None):
     if request.method == 'GET':
         serializer = DaySerializer(day)
         return Response(serializer.data)
+    
+    elif request.method == 'DELETE':
+        day.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     return Response({"msg": "within day_detail"})

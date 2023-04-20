@@ -260,4 +260,39 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.json()['DayName'], 'Test Day')
     
+    def test_day_detail_GET_invalid_id(self):
+
+        test_url = reverse('day_detail', args=[6000])
+
+        response = self.client.get(test_url)
+
+        self.assertEquals(response.status_code, 404)
     
+    def test_day_detail_DELETE_deletes_day(self):
+        
+        initial_day_count = Day.objects.count()
+        verify_creation = initial_day_count + 1
+        
+        Day.objects.create(
+            DayId = 222,
+            DayName = "Test day to be deleted"
+        )
+
+        self.assertEquals(Day.objects.count(), verify_creation)
+
+        response = self.client.delete(self.day_detail_url, json.dumps({
+            'id': 222
+        }))
+
+        self.assertEquals(response.status_code, 204)
+        self.assertEquals(Day.objects.count(), initial_day_count)
+
+    def test_day_detail_DELETE_non_existent_id(self):
+
+        initial_day_count = Day.objects.count()
+
+        response = self.client.delete(reverse('day_detail', args=[5353]))
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(Day.objects.count(), initial_day_count)
+        
