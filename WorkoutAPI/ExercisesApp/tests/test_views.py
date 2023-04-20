@@ -168,6 +168,7 @@ class TestDaysViews(TestCase):
     def setUp(self):
         self.client = Client()
         self.days_url = reverse('days')
+        self.day_detail_url = reverse('day_detail', args=[1])
         self.exercise_1 = Exercises.objects.create(
             ExerciseId = 555,
 			ExerciseName = "Bicep Curl",
@@ -252,6 +253,11 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertGreater(len(response.json()['days']), 0)
     
-    
+    def test_day_detail_GET(self):
 
-        
+        response = self.client.get(self.day_detail_url)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.json()['DayName'], 'Test Day')
+    
+    

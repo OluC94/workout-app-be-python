@@ -76,4 +76,13 @@ def day_list(request, format=None):
     
 @api_view(['GET', 'PUT', 'DELETE'])
 def day_detail(request, id, format=None):
+
+    try:
+        day = Day.objects.get(pk=id)
+    except Day.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = DaySerializer(day)
+        return Response(serializer.data)
     return Response({"msg": "within day_detail"})
