@@ -18,6 +18,6 @@ class TestDaysUrls(SimpleTestCase):
         url = reverse('days')
         self.assertEquals(resolve(url).func, day_list)
     
-    # def test_day_detail_resolves(self):
-    #     url = reverse('day_detail', args=[1])
-    #     self.assertEquals(resolve(url).func, day_detail)
+    def test_day_detail_resolves(self):
+        url = reverse('day_detail', args=[1])
+        self.assertEquals(resolve(url).func, day_detail)
