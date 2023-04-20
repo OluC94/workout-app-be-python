@@ -1,9 +1,9 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from WorkoutAPI.models import Exercises
+from WorkoutAPI.models import Exercises, Day
 import json
 
-class TestViews(TestCase):
+class TestExerciseViews(TestCase):
 
     # run before everytest
     def setUp(self):
@@ -156,7 +156,6 @@ class TestViews(TestCase):
         
         response = self.client.put(reverse('exercise_detail', args=[2]), data=json.dumps(new_info), content_type = 'application/json')
 
-        print(type(response.data['Muscle']))
         self.assertEquals(response.status_code, 400)
 
         response_verify = self.client.get(reverse('exercise_detail', args=[2]))
@@ -164,3 +163,95 @@ class TestViews(TestCase):
         self.assertEquals(response_verify.data['Instructions'], 'instructions for sumo deadlifts here...')
         self.assertEquals(response_verify.data['Muscle'], 'lower_back')
 
+class TestDaysViews(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.days_url = reverse('days')
+        self.exercise_1 = Exercises.objects.create(
+            ExerciseId = 555,
+			ExerciseName = "Bicep Curl",
+			Muscle = "biceps",
+			Equipment = "barbell",
+			Instructions = "Perform a curl"
+        )
+        self.exercise_2 = Exercises.objects.create(
+            ExerciseId = 556,
+			ExerciseName = "Incline Hammer Curls",
+		    Muscle = "biceps",
+			Equipment = "dumbbell",
+			Instructions = "Seat yourself on an incline bench with a dumbbell in each hand. You should pressed firmly against he back with your feet together. Allow the dumbbells to hang straight down at your side..."
+        )
+        self.day_example = Day.objects.create(
+            DayName = 'Test Day',
+        )
+        self.day_example.DayExercises.add(555, 556)
+    
+    def test_days_POST_adds_new_day(self):
+
+        # since all days will initially be input, make the name the only thing thats input, have the views POST dayname + dayexercises[]
+
+        current_days = Day.objects.all()
+        assertion_length = len(current_days) + 1
+        new_day = {
+            'DayName': 'Day 1',
+            'DayExercises': []
+        }
+
+        response = self.client.post(self.days_url, new_day)
+
+        self.assertEquals(response.status_code, 201)
+        self.assertEquals(response.data['DayName'], 'Day 1')
+        self.assertEquals(len(response.data['DayExercises']), 0)
+        self.assertEquals(len(Day.objects.all()), assertion_length)
+    
+    def test_days_POST_no_content(self):
+
+        new_day = {}
+
+        current_days = Day.objects.all()
+        response = self.client.post(self.days_url, new_day)
+        
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'No content submitted')
+        self.assertEquals(len(Day.objects.all()), len(current_days))
+    
+    def test_days_POST_invalid_key(self):
+
+        new_day = {
+            'Invalid Key': 'test name',
+            'DayExercises': []
+        }
+
+        current_days = Day.objects.all()
+        response = self.client.post(self.days_url, new_day)
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'Bad request')
+        self.assertEquals(len(Day.objects.all()), len(current_days))
+
+    def test_days_POST_invalid_value(self):
+
+        new_day = {
+            'DayName': 'Day to test',
+            'DayExercises': 'Invalid key'
+        }
+
+        current_days = Day.objects.all()
+        response = self.client.post(self.days_url, new_day)
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'Bad request')
+        self.assertEquals(len(Day.objects.all()), len(current_days))
+    
+    def test_days_GET(self):
+
+        response = self.client.get(self.days_url)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertGreater(len(response.json()['days']), 0)
+    
+    
+
+        

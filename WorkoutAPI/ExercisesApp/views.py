@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from WorkoutAPI.models import Exercises
-from WorkoutAPI.serializers import ExerciseSerializer
+from WorkoutAPI.models import Exercises, Day
+from WorkoutAPI.serializers import ExerciseSerializer, DaySerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -49,3 +49,31 @@ def exercise_detail(request, id, format=None):
     elif request.method == 'DELETE':
         exercise.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+def day_list(request, format=None):
+    if request.method == 'GET':
+        days = Day.objects.all()
+        serializer = DaySerializer(days, many=True)
+        return JsonResponse({'days': serializer.data})
+    
+    elif request.method == 'POST':
+            
+        if not bool(request.data):
+            return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = DaySerializer(data=request.data)
+        
+        # make sure the Day Exercises comes in blank when creating a new day
+        if 'DayExercises' in request.data:
+            return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+    
+@api_view(['GET', 'PUT', 'DELETE'])
+def day_detail(request, id, format=None):
+    return Response({"msg": "within day_detail"})
