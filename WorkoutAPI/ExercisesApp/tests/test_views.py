@@ -186,19 +186,24 @@ class TestDaysViews(TestCase):
             DayName = 'Test Day',
         )
         self.day_example.DayExercises.add(555, 556)
-        print('setup -->', self.day_example.DayExercises.all() )
     
     def test_days_POST_adds_new_day(self):
+
+        # since all days will initially be input, make the name the only thing thats input, have the views POST dayname + dayexercises[]
 
         new_day = {
             'DayName': 'Day 1',
             'DayExercises': []
         }
 
+        print(new_day)
+
         response = self.client.post(self.days_url, new_day)
+        print("response created", response.data)
 
         self.assertEquals(response.status_code, 201)
         self.assertEquals(response.data['DayName'], 'Day 1')
+        self.assertEquals(len(response.data['DayExercises']), 0)
     
     # def test_days_GET(self):
 

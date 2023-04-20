@@ -64,6 +64,8 @@ def day_list(request, format=None):
             return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = DaySerializer(data=request.data)
+        
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
