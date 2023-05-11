@@ -305,9 +305,23 @@ class TestDaysViews(TestCase):
 
         new_info = {'DayName': 'Updated day name'}
 
-        # response = self.client.put(reverse('exercise_detail', args=[2]), data=json.dumps(new_info), content_type = 'application/json')
-
         response = self.client.put(reverse('day_detail', args=[234]), data=json.dumps(new_info), content_type='application/json')
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.data['DayName'], 'Updated day name')
+    
+    def test_day_detail_PUT_invalid_key(self):
+        Day.objects.create(
+            DayId = 345,
+            DayName = 'Day to not update'
+        )
+        
+        new_info = {'invalid_key': 'Updated day name'}
+
+        response = self.client.put(reverse('day_detail', args=[345]), data=json.dumps(new_info), content_type='application/json')
+
+        self.assertEquals(response.status_code, 400)
+
+        response_for_validation = self.client.get(reverse('day_detail', args=[345]))
+
+        self.assertEquals(response_for_validation.data['DayName'], 'Day to not update')
