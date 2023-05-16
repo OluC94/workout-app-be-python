@@ -87,8 +87,19 @@ def day_detail(request, id, format=None):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
+
+        if 'ExerciseId' in request.data:
+            try:
+                exercise = Exercises.objects.get(pk=request.data["ExerciseId"])
+            except Exercises.DoesNotExist:
+                return Response({"msg": "Exercise not found"}, status=status.HTTP_404_NOT_FOUND)
+            day.DayExercises.add(exercise)
+            # print('day exercise after stuff: ', day.DayExercises.all())
+        
         serializer = DaySerializer(day, data=request.data)
+
         if serializer.is_valid():
+            # print('ser validated data: ', serializer.validated_data)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -184,6 +184,7 @@ class TestDaysViews(TestCase):
 			Instructions = "Seat yourself on an incline bench with a dumbbell in each hand. You should pressed firmly against he back with your feet together. Allow the dumbbells to hang straight down at your side..."
         )
         self.day_example = Day.objects.create(
+            DayId = 1,
             DayName = 'Test Day',
         )
         self.day_example.DayExercises.add(555, 556)
@@ -325,3 +326,28 @@ class TestDaysViews(TestCase):
         response_for_validation = self.client.get(reverse('day_detail', args=[345]))
 
         self.assertEquals(response_for_validation.data['DayName'], 'Day to not update')
+    
+    def test_day_detail_PUT_updates_exercise_list(self):
+
+        # use an existing exercise
+        Exercises.objects.create(
+            ExerciseId = 321,
+            ExerciseName = "Standing Hammer Curls",
+		    Muscle = "biceps",
+			Equipment = "dumbbell",
+			Instructions = "instructions for standing hammer curls"
+        )
+
+        new_data = {
+            "DayName": self.day_example.DayName,
+            "ExerciseId": 321
+        }
+
+        target_count = len(self.day_example.DayExercises.all()) + 1
+
+        # send data using an existing exercise id
+        response = self.client.put(reverse('day_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['DayName'], self.day_example.DayName)
+        self.assertEquals(len(response.data['DayExercises']), target_count)

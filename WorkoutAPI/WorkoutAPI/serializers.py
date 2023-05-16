@@ -14,7 +14,7 @@ class DaySerializer(serializers.ModelSerializer):
         model = Day
         fields = ['DayId', 'DayName', 'DayExercises']
         depth = 1
-        extra_kwargs = {'DayExercises': {'required': False}}
+        extra_kwargs = {'DayExercises': {'required': False}, 'ExerciseId': {'required': False}}
     
     def get_exercises(self, validated_data):
         exercise_data = validated_data.pop('DayExercises')
@@ -35,13 +35,6 @@ class DaySerializer(serializers.ModelSerializer):
         instance.DayName = validated_data.get('DayName', instance.DayName)
         instance.save()
 
-        for _exercise in exercise_data:
-            exercise = exercises.pop(0)
-            exercise['ExerciseName'] = _exercise.get('ExerciseName', exercise['ExerciseName'])
-            exercise['Muscle'] = _exercise.get('Muscle', exercise['Muscle'])
-            exercise['Equipment'] = _exercise.get('Equipment', exercise['Equipment'])
-            exercise['Instructions'] = _exercise.get('Instructions', exercise['Instructions'])
-            exercise.save()
         return instance
         
         
