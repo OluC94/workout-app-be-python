@@ -76,4 +76,39 @@ def day_list(request, format=None):
     
 @api_view(['GET', 'PUT', 'DELETE'])
 def day_detail(request, id, format=None):
+
+    try:
+        day = Day.objects.get(pk=id)
+    except Day.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = DaySerializer(day)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+
+        if 'ExerciseId' in request.data:
+            if type(request.data['ExerciseId']) is not int:
+                return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                exercise = Exercises.objects.get(pk=request.data["ExerciseId"])
+            except Exercises.DoesNotExist:
+                return Response({"msg": "Exercise not found"}, status=status.HTTP_404_NOT_FOUND)
+            day.DayExercises.add(exercise)
+            # print('day exercise after stuff: ', day.DayExercises.all())
+        
+        serializer = DaySerializer(day, data=request.data)
+
+        if serializer.is_valid():
+            # print('ser validated data: ', serializer.validated_data)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        day.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     return Response({"msg": "within day_detail"})

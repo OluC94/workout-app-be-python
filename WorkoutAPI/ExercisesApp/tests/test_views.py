@@ -168,6 +168,7 @@ class TestDaysViews(TestCase):
     def setUp(self):
         self.client = Client()
         self.days_url = reverse('days')
+        self.day_detail_url = reverse('day_detail', args=[1])
         self.exercise_1 = Exercises.objects.create(
             ExerciseId = 555,
 			ExerciseName = "Bicep Curl",
@@ -183,6 +184,7 @@ class TestDaysViews(TestCase):
 			Instructions = "Seat yourself on an incline bench with a dumbbell in each hand. You should pressed firmly against he back with your feet together. Allow the dumbbells to hang straight down at your side..."
         )
         self.day_example = Day.objects.create(
+            DayId = 1,
             DayName = 'Test Day',
         )
         self.day_example.DayExercises.add(555, 556)
@@ -252,6 +254,131 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.status_code, 200)
         self.assertGreater(len(response.json()['days']), 0)
     
-    
+    def test_day_detail_GET(self):
 
+        response = self.client.get(self.day_detail_url)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.json()['DayName'], 'Test Day')
+    
+    def test_day_detail_GET_invalid_id(self):
+
+        test_url = reverse('day_detail', args=[6000])
+
+        response = self.client.get(test_url)
+
+        self.assertEquals(response.status_code, 404)
+    
+    def test_day_detail_DELETE_deletes_day(self):
         
+        initial_day_count = Day.objects.count()
+        verify_creation = initial_day_count + 1
+        
+        Day.objects.create(
+            DayId = 222,
+            DayName = "Test day to be deleted"
+        )
+
+        self.assertEquals(Day.objects.count(), verify_creation)
+
+        response = self.client.delete(self.day_detail_url, json.dumps({
+            'id': 222
+        }))
+
+        self.assertEquals(response.status_code, 204)
+        self.assertEquals(Day.objects.count(), initial_day_count)
+
+    def test_day_detail_DELETE_non_existent_id(self):
+
+        initial_day_count = Day.objects.count()
+
+        response = self.client.delete(reverse('day_detail', args=[5353]))
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(Day.objects.count(), initial_day_count)
+    
+    def test_day_detail_PUT_updates_day(self):
+
+        Day.objects.create(
+            DayId = 234,
+            DayName = 'Day to update'
+        )
+
+        new_info = {'DayName': 'Updated day name'}
+
+        response = self.client.put(reverse('day_detail', args=[234]), data=json.dumps(new_info), content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['DayName'], 'Updated day name')
+    
+    def test_day_detail_PUT_invalid_key(self):
+        Day.objects.create(
+            DayId = 345,
+            DayName = 'Day to not update'
+        )
+        
+        new_info = {'invalid_key': 'Updated day name'}
+
+        response = self.client.put(reverse('day_detail', args=[345]), data=json.dumps(new_info), content_type='application/json')
+
+        self.assertEquals(response.status_code, 400)
+
+        response_for_validation = self.client.get(reverse('day_detail', args=[345]))
+
+        self.assertEquals(response_for_validation.data['DayName'], 'Day to not update')
+    
+    def test_day_detail_PUT_updates_exercise_list(self):
+
+        # use an existing exercise
+        Exercises.objects.create(
+            ExerciseId = 321,
+            ExerciseName = "Standing Hammer Curls",
+		    Muscle = "biceps",
+			Equipment = "dumbbell",
+			Instructions = "instructions for standing hammer curls"
+        )
+
+        new_data = {
+            "DayName": self.day_example.DayName,
+            "ExerciseId": 321
+        }
+
+        target_count = len(self.day_example.DayExercises.all()) + 1
+
+        # send data using an existing exercise id
+        response = self.client.put(reverse('day_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['DayName'], self.day_example.DayName)
+        self.assertEquals(len(response.data['DayExercises']), target_count)
+
+    def test_day_detail_PUT_updates_non_existing_exercise_id(self):
+
+        new_data = {
+            "DayName": self.day_example.DayName,
+            "ExerciseId": 942
+        }
+
+        target_count = len(self.day_example.DayExercises.all())
+
+        response = self.client.put(reverse('day_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data['msg'], "Exercise not found")
+        self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
+
+    def test_day_detail_PUT_updates_invalid_exercise_id(self):
+
+        new_data = {
+            "DayName": self.day_example.DayName,
+            "ExerciseId": "not_an_id"
+        }
+
+        target_count = len(self.day_example.DayExercises.all())
+
+        response = self.client.put(reverse('day_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], "Bad request")
+        self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
+    
