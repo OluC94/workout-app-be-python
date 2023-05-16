@@ -112,3 +112,11 @@ def day_detail(request, id, format=None):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     return Response({"msg": "within day_detail"})
+
+@api_view(['GET', 'POST'])
+def routine_list(request, format=None):
+    return Response({"msg": "/routines"})
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def routine_detail(request, id, format=None):
+    return Response({"msg": "/routines/<int:id>"})

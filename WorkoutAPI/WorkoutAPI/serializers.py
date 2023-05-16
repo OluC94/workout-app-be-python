@@ -35,8 +35,3 @@ class DaySerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
-        
-        
-        
-            
-                
