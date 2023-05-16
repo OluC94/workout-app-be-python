@@ -29,7 +29,6 @@ class DaySerializer(serializers.ModelSerializer):
         return day
     
     def update(self, instance, validated_data):
-        exercise_data = validated_data.pop('DayExercises')
         exercises = (instance.DayExercises).all()
         exercises = list(exercises)
         instance.DayName = validated_data.get('DayName', instance.DayName)

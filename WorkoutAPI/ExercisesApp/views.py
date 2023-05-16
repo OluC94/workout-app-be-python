@@ -89,6 +89,9 @@ def day_detail(request, id, format=None):
     elif request.method == 'PUT':
 
         if 'ExerciseId' in request.data:
+            if type(request.data['ExerciseId']) is not int:
+                return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
             try:
                 exercise = Exercises.objects.get(pk=request.data["ExerciseId"])
             except Exercises.DoesNotExist:
