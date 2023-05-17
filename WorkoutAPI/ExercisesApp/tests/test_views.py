@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from WorkoutAPI.models import Exercises, Day
+from WorkoutAPI.models import Exercises, Day, Routine
 import json
 
 class TestExerciseViews(TestCase):
@@ -381,4 +381,101 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data['msg'], "Bad request")
         self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
+
+class TestRoutinesViews(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.routines_url = reverse('routines')
+        self.routine_detail_url = reverse('routine_detail', args=[1])
+        self.routine_example = Routine.objects.create(
+            RoutineId = 1,
+            RoutineName = 'Test routine'
+        )
+        self.day_example_1 = Day.objects.create(
+            DayId = 444,
+            DayName = 'Example Day 1'
+        )
+        self.day_example_2 = Day.objects.create(
+            DayId = 445,
+            DayName = 'Example Day 2'
+        )
+        self.exercise_1 = Exercises.objects.create(
+            ExerciseId = 333,
+			ExerciseName = "Bicep Curl",
+			Muscle = "biceps",
+			Equipment = "barbell",
+			Instructions = "Perform a curl"
+        )
+        self.exercise_2 = Exercises.objects.create(
+            ExerciseId = 334,
+			ExerciseName = "Incline Hammer Curls",
+		    Muscle = "biceps",
+			Equipment = "dumbbell",
+			Instructions = "Incline hammer curl instructions.."
+        )
+        self.day_example_1.DayExercises.add(333, 334)
+        self.routine_example.RoutineDays.add(444, 445)
     
+    def test_POST_adds_new_routine(self):
+
+        current_routines = Routine.objects.all()
+        assertion_length = len(current_routines) + 1
+        new_routine = {
+            'RoutineName': 'Routine 1',
+            'RoutineDays': []
+        }
+
+        response = self.client.post(self.routines_url, new_routine)
+
+        self.assertEquals(response.status_code, 201)
+        self.assertEquals(response.data['RoutineName'], 'Routine 1')
+        self.assertEquals(len(response.data['RoutineDays']), 0)
+        self.assertEquals(len(Routine.objects.all()), assertion_length)
+    
+    def test_POST_no_content(self):
+
+        new_routine = {}
+
+        current_routine_len = len(Routine.objects.all())
+        response = self.client.post(self.routines_url, new_routine)
+        
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'No content submitted')
+        self.assertEquals(len(Routine.objects.all()), current_routine_len)
+    
+    def test_POST_invalid_key(self):
+        new_routine = {
+            'Invalid Key': 'test name',
+            'RoutineDays': []
+        }
+
+        current_routines_len = len(Routine.objects.all())
+        response = self.client.post(self.routines_url, new_routine)
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'Bad request')
+        self.assertEquals(len(Routine.objects.all()), current_routines_len)
+    
+    def test_POST_invalid_value(self):
+        new_routine = {
+            'RoutineName': 'Routine to test',
+            'RoutineDays': 'Invalid key'
+        }
+
+        current_routines_len = len(Routine.objects.all())
+        response = self.client.post(self.routines_url, new_routine)
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], 'Bad request')
+        self.assertEquals(len(Routine.objects.all()), current_routines_len)
+    
+    def test_GET_routines(self):
+
+        response = self.client.get(self.routines_url)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertGreater(len(response.json()['routines']), 0)
+
+
+
