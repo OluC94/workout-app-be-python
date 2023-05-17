@@ -541,6 +541,58 @@ class TestRoutinesViews(TestCase):
 
         self.assertEquals(response_for_validation.data['RoutineName'], 'Routine name to keep')
 
+    def test_routine_detail_PUT_updates_day_list(self):
+        # create a new day object
+        # create a new_data dictionary using the day id from self.example_1
+        # set target_count for routine_days
+        Day.objects.create(
+            DayId = 111,
+            DayName = 'Test day for routine detail'
+        )
+
+        new_data = {
+            "RoutineName": self.routine_example.RoutineName,
+            "DayId": 111
+        }
+
+        target_count = len(self.routine_example.RoutineDays.all()) + 1
+
+        response = self.client.put(reverse('routine_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['RoutineName'], self.routine_example.RoutineName)
+        self.assertEquals(len(response.data['RoutineDays']), target_count)
+    
+    def test_routine_detail_PUT_non_existent_day_id(self):
+        new_data = {
+            "RoutineName": self.routine_example.RoutineName,
+            "DayId": 112
+        }
+
+        target_count = len(self.routine_example.RoutineDays.all())
+
+        response = self.client.put(reverse('routine_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data['msg'], "Day not found")
+        self.assertEquals(target_count, len(self.routine_example.RoutineDays.all()))
+    
+    def test_routine_detail_PUT_invalid_day_id(self):
+        new_data = {
+            "RoutineName": self.routine_example.RoutineName,
+            "DayId": "not an id"
+        }
+
+        target_count = len(self.routine_example.RoutineDays.all())
+
+        response = self.client.put(reverse('routine_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], "Bad request")
+        self.assertEquals(target_count, len(self.routine_example.RoutineDays.all()))
+
+    
+
 
 
 

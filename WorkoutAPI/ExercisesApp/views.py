@@ -145,6 +145,16 @@ def routine_detail(request, id, format=None):
         return Response(serializer.data)
     
     elif request.method == 'PUT':
+        if 'DayId' in request.data:
+            if type(request.data['DayId']) is not int:
+                return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                day = Day.objects.get(pk=request.data['DayId'])
+            except Day.DoesNotExist:
+                return Response({"msg": "Day not found"}, status=status.HTTP_404_NOT_FOUND)
+            routine.RoutineDays.add(day)
+        
         serializer = RoutineSerializer(routine, request.data)
 
         if serializer.is_valid():
