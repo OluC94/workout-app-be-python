@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from WorkoutAPI.models import Exercises, Day
-from WorkoutAPI.serializers import ExerciseSerializer, DaySerializer
+from WorkoutAPI.serializers import ExerciseSerializer, DaySerializer, RoutineSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -68,7 +68,6 @@ def day_list(request, format=None):
         if 'DayExercises' in request.data:
             return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
         
-    
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -115,7 +114,22 @@ def day_detail(request, id, format=None):
 
 @api_view(['GET', 'POST'])
 def routine_list(request, format=None):
-    return Response({"msg": "/routines"})
+    if request.method == 'GET':
+        return Response({"msg": "get req made"})
+
+    elif request.method == 'POST':
+        if not bool(request.data):
+            return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if 'RoutineDays' in request.data:
+            return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = RoutineSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def routine_detail(request, id, format=None):
