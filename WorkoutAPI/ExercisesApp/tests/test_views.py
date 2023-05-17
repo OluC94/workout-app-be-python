@@ -470,6 +470,12 @@ class TestRoutinesViews(TestCase):
         self.assertEquals(response.data['msg'], 'Bad request')
         self.assertEquals(len(Routine.objects.all()), current_routines_len)
     
+    def test_GET_routines(self):
+
+        response = self.client.get(self.routines_url)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertGreater(len(response.json()['routines']), 0)
 
 
 
