@@ -18,10 +18,10 @@ class Day(models.Model):
     def __str__(self):
         return self.DayName
 
-class Routines(models.Model):
+class Routine(models.Model):
     RoutineId = models.AutoField(primary_key=True)
     RoutineName = models.CharField(max_length=100)
-    RoutineDays = models.ManyToManyField(Day)
+    RoutineDays = models.ManyToManyField(Day, blank=True)
 
     def __str__(self):
         return self.RoutineName

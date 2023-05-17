@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from WorkoutAPI.models import Exercises, Day
+from WorkoutAPI.models import Exercises, Day, Routine
 import json
 
 class TestExerciseViews(TestCase):
@@ -381,4 +381,21 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data['msg'], "Bad request")
         self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
-    
+
+class TestRoutinesViews(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.routines_url = reverse('routines')
+        self.routine_detail_url = reverse('routine_detail', args=[1])
+
+""" 
+self.routine_example
+self.day_example_1 
+self.day_example_2 (empty exercises)
+self.exercises_example_1
+self.exercises_example_2
+self.day_example_1.DayExercises.add(ids for exercises 1 and 2)
+self.routine_example_1.RoutineDays.add(ids for days 1 and 2)
+
+
+ """
