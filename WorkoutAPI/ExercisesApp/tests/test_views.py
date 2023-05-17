@@ -387,15 +387,36 @@ class TestRoutinesViews(TestCase):
         self.client = Client()
         self.routines_url = reverse('routines')
         self.routine_detail_url = reverse('routine_detail', args=[1])
+        self.routine_example = Routine.objects.create(
+            RoutineId = 1,
+            RoutineName = 'Test routine'
+        )
+        self.day_example_1 = Day.objects.create(
+            DayId = 444,
+            DayName = 'Example Day 1'
+        )
+        self.day_example_2 = Day.objects.create(
+            DayId = 445,
+            DayName = 'Example Day 2'
+        )
+        self.exercise_1 = Exercises.objects.create(
+            ExerciseId = 333,
+			ExerciseName = "Bicep Curl",
+			Muscle = "biceps",
+			Equipment = "barbell",
+			Instructions = "Perform a curl"
+        )
+        self.exercise_2 = Exercises.objects.create(
+            ExerciseId = 334,
+			ExerciseName = "Incline Hammer Curls",
+		    Muscle = "biceps",
+			Equipment = "dumbbell",
+			Instructions = "Incline hammer curl instructions.."
+        )
+        self.day_example_1.DayExercises.add(333, 334)
+        self.routine_example.RoutineDays.add(444, 445)
+    
+    
 
-""" 
-self.routine_example
-self.day_example_1 
-self.day_example_2 (empty exercises)
-self.exercises_example_1
-self.exercises_example_2
-self.day_example_1.DayExercises.add(ids for exercises 1 and 2)
-self.routine_example_1.RoutineDays.add(ids for days 1 and 2)
 
 
- """
