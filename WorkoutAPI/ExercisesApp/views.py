@@ -110,7 +110,6 @@ def day_detail(request, id, format=None):
         day.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    return Response({"msg": "within day_detail"})
 
 @api_view(['GET', 'POST'])
 def routine_list(request, format=None):
@@ -135,4 +134,26 @@ def routine_list(request, format=None):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def routine_detail(request, id, format=None):
+    
+    try:
+        routine = Routine.objects.get(pk=id)
+    except Routine.DoesNotExist:
+        return Response({"msg": "Routine not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        serializer = RoutineSerializer(routine)
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = RoutineSerializer(routine, request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'DELETE':
+        routine.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     return Response({"msg": "/routines/<int:id>"})

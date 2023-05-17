@@ -352,7 +352,7 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['DayName'], self.day_example.DayName)
         self.assertEquals(len(response.data['DayExercises']), target_count)
 
-    def test_day_detail_PUT_updates_non_existing_exercise_id(self):
+    def test_day_detail_PUT_non_existent_exercise_id(self):
 
         new_data = {
             "DayName": self.day_example.DayName,
@@ -367,7 +367,7 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['msg'], "Exercise not found")
         self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
 
-    def test_day_detail_PUT_updates_invalid_exercise_id(self):
+    def test_day_detail_PUT_invalid_exercise_id(self):
 
         new_data = {
             "DayName": self.day_example.DayName,
@@ -476,6 +476,73 @@ class TestRoutinesViews(TestCase):
 
         self.assertEquals(response.status_code, 200)
         self.assertGreater(len(response.json()['routines']), 0)
+
+    def test_routine_detail_GET(self):
+        response = self.client.get(self.routine_detail_url)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.json()['RoutineName'], 'Test routine')
+    
+    def test_routine_detail_GET_non_existent_id(self):
+        response = self.client.get(reverse('routine_detail', args=[7500]))
+        
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data['msg'], 'Routine not found')
+
+    def test_routine_detail_DELETE_deletes_routine(self):
+        initial_routine_count = Routine.objects.count()
+
+        Routine.objects.create(
+            RoutineId = 23,
+            RoutineName = 'routine to delete'
+        )
+        
+        response = self.client.delete(self.routine_detail_url, json.dumps({
+            'id': 23
+        }))
+
+        self.assertEquals(response.status_code, 204)
+        self.assertEquals(Routine.objects.count(), initial_routine_count)
+
+    def test_routine_detail_DELETE_non_existent_id(self):
+        initial_routine_count = Routine.objects.count()
+
+        response = self.client.delete(reverse('routine_detail', args=[4321]))
+
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(Routine.objects.count(), initial_routine_count)
+
+    def test_routine_detail_PUT_updates_routine_name(self):
+        Routine.objects.create(
+            RoutineId = 678,
+            RoutineName = 'Routine name to change'
+        )
+
+        new_info = {'RoutineName': 'Updated routine name'}
+
+        response = self.client.put(reverse('routine_detail', args=[678]), data=json.dumps(new_info), content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.data['RoutineName'], 'Updated routine name')
+    
+    def test_routine_detail_PUT_invalid_key(self):
+        Routine.objects.create(
+            RoutineId = 679,
+            RoutineName = 'Routine name to keep'
+        )
+
+        new_info = {'InvalidKey': 'Updated routine name'}
+
+        response = self.client.put(reverse('routine_detail', args=[679]), data=json.dumps(new_info), content_type='application/json')
+
+        self.assertEquals(response.status_code, 400)
+
+        response_for_validation = self.client.get(reverse('routine_detail', args=[679]))
+
+        self.assertEquals(response_for_validation.data['RoutineName'], 'Routine name to keep')
+
+
+
 
 
 
