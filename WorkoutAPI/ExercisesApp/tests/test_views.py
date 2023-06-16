@@ -383,8 +383,6 @@ class TestDaysViews(TestCase):
         self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
     
     def test_day_detail_PUT_removes_exercise_from_day(self):
-
-        
         target_count = len(self.day_example.DayExercises.all()) - 1
 
         new_data = {
@@ -414,7 +412,7 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['msg'], "Exercise not found")
         self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
 
-    def test_day_detail_PUT_removes_invalid_id_exercise_from_day(self):
+    def test_day_detail_PUT_removes_invalid_exercise_id_from_day(self):
         target_count = len(self.day_example.DayExercises.all())
 
         new_data = {
@@ -638,34 +636,52 @@ class TestRoutinesViews(TestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data['msg'], "Bad request")
         self.assertEquals(target_count, len(self.routine_example.RoutineDays.all()))
+    
+    def test_routine_detail_PUT_removes_day_from_routine(self):
+        target_count = len(self.routine_example.RoutineDays.all()) - 1
+
+        new_data = {
+            "RoutineName": self.routine_example.RoutineName,
+            "day_to_remove": 445
+        }
+
+        response = self.client.put(reverse('routine_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(response.data['RoutineDays']), target_count)
+
+        removed_day = Day.objects.get(pk=new_data['day_to_remove'])
+        self.assertEquals(removed_day, self.day_example_2)
+
+    def test_routine_detail_PUT_removes_non_existant_day_from_routine(self):
+        target_count = len(self.routine_example.RoutineDays.all())
+
+        new_data = {
+            "RoutineName": self.routine_example.RoutineName,
+            "day_to_remove": 9876
+        }
+
+        response = self.client.put(reverse('routine_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+        
+        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.data['msg'], "Day not found")
+        self.assertEquals(target_count, len(self.routine_example.RoutineDays.all()))
+
+    def test_routine_detail_PUT_removes_invalid_day_id_from_routine(self):
+        target_count = len(self.routine_example.RoutineDays.all())
+
+        new_data = {
+            "RoutineName": self.routine_example.RoutineName,
+            "day_to_remove": "not an id"
+        }
+
+        response = self.client.put(reverse('routine_detail', args=[1]), data=json.dumps(new_data), content_type='application/json')
+        
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.data['msg'], "Bad request")
+        self.assertEquals(target_count, len(self.routine_example.RoutineDays.all()))
 
 
-
-""" 
-     deleteing a manytomany
-     how to access --> /days/<id>/<exercise_id>
-     will need its own view
-     
-     assertions - length comparison before and after
-
-     test_day.DayExercises.remove(unwanted_exercise)
-
-
-     https://docs.djangoproject.com/en/dev/ref/models/relations/#django.db.models.fields.related.RelatedManager.remove
-     
-    Note: you might have to get an instance of my_mood and my_interest using Django's QuerySet API before you can execute this code.
-
-    https://docs.djangoproject.com/en/dev/ref/models/querysets/
-
-    steps for testing
-    1. Get a day detail
-    2. Get a day exercise
-    3. In the views, check if day exercise key is present in request data
-    4. if yes, run the .remove() function
-    5. else, run the delete that is already there
-    6. error handling to make sure that request is valid
-
-        """
 
 
 
