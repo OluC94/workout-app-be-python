@@ -98,6 +98,16 @@ def day_detail(request, id, format=None):
             day.DayExercises.add(exercise)
             # print('day exercise after stuff: ', day.DayExercises.all())
         
+        elif 'exercise_id_to_remove' in request.data:
+            if type(request.data['exercise_id_to_remove']) is not int:
+                return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                exercise = Exercises.objects.get(pk=request.data["exercise_id_to_remove"])
+            except Exercises.DoesNotExist:
+                return Response({"msg": "Exercise not found"}, status=status.HTTP_404_NOT_FOUND)
+            day.DayExercises.remove(exercise)
+
         serializer = DaySerializer(day, data=request.data)
 
         if serializer.is_valid():
@@ -155,6 +165,16 @@ def routine_detail(request, id, format=None):
                 return Response({"msg": "Day not found"}, status=status.HTTP_404_NOT_FOUND)
             routine.RoutineDays.add(day)
         
+        elif 'day_to_remove' in request.data:
+            if type(request.data['day_to_remove']) is not int:
+                return Response({"msg": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                day = Day.objects.get(pk=request.data['day_to_remove'])
+            except Day.DoesNotExist:
+                return Response({"msg": "Day not found"}, status=status.HTTP_404_NOT_FOUND)
+            routine.RoutineDays.remove(day)
+
         serializer = RoutineSerializer(routine, request.data)
 
         if serializer.is_valid():
