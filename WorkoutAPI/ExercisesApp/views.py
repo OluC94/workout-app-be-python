@@ -10,6 +10,7 @@ from rest_framework import status
 @api_view(['GET', 'POST'])
 def exercise_list(request, format=None):
     if request.method == 'GET':
+        print('request.GET: ', request.GET.getlist("param1"))
         exercises = Exercises.objects.all() # get exercises
         serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
         return JsonResponse({'exercises': serializer.data})
@@ -23,6 +24,17 @@ def exercise_list(request, format=None):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+""" Param testing
+- Need to make sure that the params passed are valid
+- need to make sure datatype is valid
+    - store valid params in a object {param_name: 'datatype'}
+    - or store param names in an array and .toString() values
+
+
+- 404 test not needed, if it doesn't exist return empty array
+
+ """
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def exercise_detail(request, id, format=None):

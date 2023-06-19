@@ -5,23 +5,54 @@ import json
 
 class TestExerciseViews(TestCase):
 
-    # run before everytest
     def setUp(self):
         self.client = Client()
         self.exercises_url = reverse('exercises')
         self.exercise_detail_url = reverse('exercise_detail', args=[1])
         self.exercise1 = Exercises.objects.create(
+            ExerciseId = 1,
             ExerciseName = "Barbell shrug",
             Muscle = "traps",
             Equipment = "barbell",
             Instructions = "Stand up straight with your feet at shoulder width as you hold a barbell with both hands in front of you using a pronated grip (palms facing the thighs)..."
         )
+        self.exercise2 = Exercises.objects.create(
+            ExerciseId = 123,
+            ExerciseName = "Reverse-grip bent-over row",
+            Muscle = "middle_back",
+            Equipment = "barbell",
+            Instructions = "Stand erect while holding a barbell with a supinated grip (palms facing up). Bend your knees slightly and bring your torso forward, by bending..."
+        )
+        self.exercise3 = Exercises.objects.create(
+            ExerciseId = 124,
+            ExerciseName = "Kettlebell thruster",
+            Muscle = "glutes",
+            Equipment = "kettlebells",
+            Instructions = "Clean two kettlebells to your shoulders. Clean the kettlebells to your shoulders by extending through the legs and hips as you pull the kettlebells towards your shoulders..."
+        )
 
     def test_exercise_list_GET(self):
-
         response = self.client.get(self.exercises_url)
 
         self.assertEquals(response.status_code, 200)
+    
+    def test_exercise_list_GET_relevant_queries(self):
+        initial_exercise_count = Exercises.objects.count()
+        print('inital count: ', initial_exercise_count)
+
+        response_1 = self.client.get(self.exercises_url, {"ExerciseName": "shrug"})
+        response_2 = self.client.get(self.exercises_url, {"Muscle": "middle_back"})
+        response_3 = self.client.get(self.exercises_url, {"Equipment": "barbell"})
+
+        self.assertEquals(response_1.status_code, 200)
+        self.assertEquals(len(response_1.json()['exercises']), 1)
+
+        self.assertEquals(response_2.status_code, 200)
+        self.assertEquals(len(response_2.json()['exercises']), 1)
+
+        self.assertEquals(response_3.status_code, 200)
+        self.assertEquals(len(response_3.json()['exercises']), 2)
+
     
     def test_exercises_list_POST_adds_new_exercise(self):
         new_exercise = { 
@@ -42,14 +73,13 @@ class TestExerciseViews(TestCase):
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.data, {"msg": "No content submitted"})
 
-
     def test_exercise_detail_GET(self):
         response = self.client.get(self.exercise_detail_url)
 
         self.assertEquals(response.status_code, 200)
 
     def test_exercise_detail_DELETE_deletes_exercise(self):
-
+        
         Exercises.objects.create(
             ExerciseId = 2,
             ExerciseName = "Barbell sumo deadlift",
@@ -57,16 +87,18 @@ class TestExerciseViews(TestCase):
             Equipment = "barbell",
             Instructions = "instructions for sumo deadlifts here..."
         )
+
+        initial_count = Exercises.objects.count()
 
         response = self.client.delete(self.exercise_detail_url, json.dumps({
             'id': 2
         }))
 
         self.assertEquals(response.status_code, 204)
-        self.assertEquals(Exercises.objects.count(), 1)
+        self.assertEquals(Exercises.objects.count(), initial_count - 1)
 
     def test_exercise_detail_DELETE_non_existent_id(self):
-
+        
         Exercises.objects.create(
             ExerciseId = 2,
             ExerciseName = "Barbell sumo deadlift",
@@ -74,14 +106,14 @@ class TestExerciseViews(TestCase):
             Equipment = "barbell",
             Instructions = "instructions for sumo deadlifts here..."
         )
+        initial_count = Exercises.objects.count()
 
-        response = self.client.delete(reverse('exercise_detail', args=[53]))
+        response = self.client.delete(reverse('exercise_detail', args=[5300]))
 
         self.assertEquals(response.status_code, 404)
-        self.assertEquals(Exercises.objects.count(), 2)
+        self.assertEquals(Exercises.objects.count(), initial_count)
     
     def test_exercise_detail_PUT_updates_data(self):
-
         Exercises.objects.create(
             ExerciseId = 2,
             ExerciseName = "Barbell sumo deadlift",
@@ -116,7 +148,6 @@ class TestExerciseViews(TestCase):
         self.assertEquals(curr_count, Exercises.objects.count())
 
     def test_exercise_detail_PUT_invalid_data_key(self):
-
         Exercises.objects.create(
             ExerciseId = 2,
             ExerciseName = "Barbell sumo deadlift",
@@ -139,7 +170,6 @@ class TestExerciseViews(TestCase):
         self.assertEquals(response_verify.data['Instructions'], 'instructions for sumo deadlifts here...')
 
     def test_exercise_detail_PUT_invalid_data_value(self):
-
         Exercises.objects.create(
             ExerciseId = 2,
             ExerciseName = "Barbell sumo deadlift",
