@@ -10,7 +10,27 @@ from rest_framework import status
 @api_view(['GET', 'POST'])
 def exercise_list(request, format=None):
     if request.method == 'GET':
-        exercises = Exercises.objects.all() # get exercises
+
+        if not request.query_params: # query dict is empty
+            exercises = Exercises.objects.all()
+        else:
+            # validate the query, then filter based on results
+            valid_params = ['ExerciseName', 'Muscle', 'Equipment']
+
+            # querydict keys converted to list, check if present in valid params
+            if list(request.query_params.keys())[0] not in valid_params:
+                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if 'ExerciseName' in request.query_params:
+                value = request.query_params.get('ExerciseName')
+                exercises = Exercises.objects.filter(ExerciseName__contains=value)
+            elif 'Muscle' in request.query_params:
+                value = request.query_params.get('Muscle')
+                exercises = Exercises.objects.filter(Muscle__contains=value)
+            elif 'Equipment' in request.query_params:
+                value = request.query_params.get('Equipment')
+                exercises = Exercises.objects.filter(Equipment__contains=value)
+            
         serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
         return JsonResponse({'exercises': serializer.data})
     
@@ -53,7 +73,19 @@ def exercise_detail(request, id, format=None):
 @api_view(['GET', 'POST'])
 def day_list(request, format=None):
     if request.method == 'GET':
-        days = Day.objects.all()
+
+        if not request.query_params:
+            days = Day.objects.all()
+
+        else:
+            valid_params = ['DayName']
+
+            if list(request.query_params.keys())[0] not in valid_params:
+                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
+
+            value = request.query_params.get('DayName')
+            days = Day.objects.filter(DayName__contains=value)
+
         serializer = DaySerializer(days, many=True)
         return JsonResponse({'days': serializer.data})
     
@@ -124,7 +156,19 @@ def day_detail(request, id, format=None):
 @api_view(['GET', 'POST'])
 def routine_list(request, format=None):
     if request.method == 'GET':
-        routines = Routine.objects.all()
+
+        if not request.query_params:
+            routines = Routine.objects.all()
+
+        else:
+            valid_params = ['RoutineName']
+
+            if list(request.query_params.keys())[0] not in valid_params:
+                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            value = request.query_params.get('RoutineName')
+            routines = Routine.objects.filter(RoutineName__contains=value)
+
         serializer = RoutineSerializer(routines, many=True)
         return JsonResponse({'routines': serializer.data})
 
