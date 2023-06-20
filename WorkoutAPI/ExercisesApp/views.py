@@ -10,10 +10,32 @@ from rest_framework import status
 @api_view(['GET', 'POST'])
 def exercise_list(request, format=None):
     if request.method == 'GET':
-        print('request.GET: ', request.GET.getlist("param1"))
-        exercises = Exercises.objects.all() # get exercises
-        serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
-        return JsonResponse({'exercises': serializer.data})
+        # print('request.GET: ', request.GET.get("ExerciseName"))
+        # print('request.GET: ', request.GET)
+        exercises = Exercises.objects.all()
+
+        if not request.query_params: # query dict is empty
+            exercises = Exercises.objects.all()
+            serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
+            return JsonResponse({'exercises': serializer.data})
+        else:
+            # validate the query, then filter based on results
+            valid_params = ['ExerciseName', 'Muscle', 'Equipment']
+
+            if 'ExerciseName' in request.query_params:
+                value = request.query_params.get('ExerciseName')
+                exercises = Exercises.objects.filter(ExerciseName__contains=value)
+            elif 'Muscle' in request.query_params:
+                value = request.query_params.get('Muscle')
+                exercises = Exercises.objects.filter(Muscle__contains=value)
+            elif 'Equipment' in request.query_params:
+                value = request.query_params.get('Equipment')
+                exercises = Exercises.objects.filter(Equipment__contains=value)
+            else:
+                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
+            return JsonResponse({'exercises': serializer.data})
     
     elif request.method == 'POST':
 

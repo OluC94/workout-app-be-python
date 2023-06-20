@@ -36,13 +36,13 @@ class TestExerciseViews(TestCase):
 
         self.assertEquals(response.status_code, 200)
     
-    def test_exercise_list_GET_relevant_queries(self):
-        initial_exercise_count = Exercises.objects.count()
-        print('inital count: ', initial_exercise_count)
+    def test_exercise_list_GET_relevant_filter_queries(self):
+        inital_count = Exercises.objects.count()
 
         response_1 = self.client.get(self.exercises_url, {"ExerciseName": "shrug"})
         response_2 = self.client.get(self.exercises_url, {"Muscle": "middle_back"})
         response_3 = self.client.get(self.exercises_url, {"Equipment": "barbell"})
+        response_4 = self.client.get(self.exercises_url)
 
         self.assertEquals(response_1.status_code, 200)
         self.assertEquals(len(response_1.json()['exercises']), 1)
@@ -52,6 +52,9 @@ class TestExerciseViews(TestCase):
 
         self.assertEquals(response_3.status_code, 200)
         self.assertEquals(len(response_3.json()['exercises']), 2)
+
+        self.assertEquals(response_4.status_code, 200)
+        self.assertEquals(len(response_4.json()['exercises']), inital_count)
 
     
     def test_exercises_list_POST_adds_new_exercise(self):
