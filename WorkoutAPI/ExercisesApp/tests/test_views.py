@@ -56,6 +56,19 @@ class TestExerciseViews(TestCase):
         self.assertEquals(response_4.status_code, 200)
         self.assertEquals(len(response_4.json()['exercises']), inital_count)
 
+    def test_exercise_list_GET_invalid_filter_queries(self):
+
+        response = self.client.get(self.exercises_url, {"not_a_field": "glutes"})
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.json()['msg'], "Bad query")
+    
+    def test_exercise_list_GET_empty_filter_queries(self):
+
+        response = self.client.get(self.exercises_url, {"Muscle": "not a muscle"})
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(response.json()['exercises']), 0)
     
     def test_exercises_list_POST_adds_new_exercise(self):
         new_exercise = { 
@@ -221,8 +234,16 @@ class TestDaysViews(TestCase):
             DayName = 'Test Day',
         )
         self.day_example.DayExercises.add(555, 556)
+        self.day_example_1 = Day.objects.create(
+            DayId = 2,
+            DayName = 'Example day',
+        )
+        self.day_example_2 = Day.objects.create(
+            DayId = 3,
+            DayName = 'Day placeholder',
+        )
     
-    def test_days_POST_adds_new_day(self):
+    def test_days_list_POST_adds_new_day(self):
 
         # since all days will initially be input, make the name the only thing thats input, have the views POST dayname + dayexercises[]
 
@@ -240,7 +261,7 @@ class TestDaysViews(TestCase):
         self.assertEquals(len(response.data['DayExercises']), 0)
         self.assertEquals(len(Day.objects.all()), assertion_length)
     
-    def test_days_POST_no_content(self):
+    def test_days_list_POST_no_content(self):
 
         new_day = {}
 
@@ -252,7 +273,7 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['msg'], 'No content submitted')
         self.assertEquals(len(Day.objects.all()), len(current_days))
     
-    def test_days_POST_invalid_key(self):
+    def test_days_list_POST_invalid_key(self):
 
         new_day = {
             'Invalid Key': 'test name',
@@ -266,7 +287,7 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['msg'], 'Bad request')
         self.assertEquals(len(Day.objects.all()), len(current_days))
 
-    def test_days_POST_invalid_value(self):
+    def test_days_list_POST_invalid_value(self):
 
         new_day = {
             'DayName': 'Day to test',
@@ -280,12 +301,38 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['msg'], 'Bad request')
         self.assertEquals(len(Day.objects.all()), len(current_days))
     
-    def test_days_GET(self):
+    def test_days_list_GET(self):
 
         response = self.client.get(self.days_url)
 
         self.assertEquals(response.status_code, 200)
         self.assertGreater(len(response.json()['days']), 0)
+
+    def test_days_list_GET_relevant_filter_queries(self):
+        inital_count = Day.objects.count()
+
+        response_1 = self.client.get(self.days_url, {"DayName": "Test"})
+        response_2 = self.client.get(self.days_url)
+
+        self.assertEquals(response_1.status_code, 200)
+        self.assertEquals(len(response_1.json()['days']), 1)
+
+        self.assertEquals(response_2.status_code, 200)
+        self.assertEquals(len(response_2.json()['days']), inital_count)
+
+    def test_days_list_GET_invalid_filter_queries(self):
+
+        response = self.client.get(self.days_url, {"not_a_field": "Test"})
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.json()['msg'], "Bad query")
+    
+    def test_days_list_GET_empty_filter_queries(self):
+
+        response = self.client.get(self.days_url, {"DayName": "not in any name"})
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(response.json()['days']), 0)
     
     def test_day_detail_GET(self):
 
@@ -459,8 +506,6 @@ class TestDaysViews(TestCase):
         self.assertEquals(response.data['msg'], "Bad request")
         self.assertEquals(target_count, len(self.day_example.DayExercises.all()))
 
-
-
 class TestRoutinesViews(TestCase):
     def setUp(self):
         self.client = Client()
@@ -494,8 +539,16 @@ class TestRoutinesViews(TestCase):
         )
         self.day_example_1.DayExercises.add(333, 334)
         self.routine_example.RoutineDays.add(444, 445)
+        self.routine_example_1 = Routine.objects.create(
+            RoutineId = 2,
+            RoutineName = 'Second test routine'
+        )
+        self.routine_example_2 = Routine.objects.create(
+            RoutineId = 3,
+            RoutineName = 'Test routine placeholder'
+        )
     
-    def test_POST_adds_new_routine(self):
+    def test_routines_list_POST_adds_new_routine(self):
 
         current_routines = Routine.objects.all()
         assertion_length = len(current_routines) + 1
@@ -511,7 +564,7 @@ class TestRoutinesViews(TestCase):
         self.assertEquals(len(response.data['RoutineDays']), 0)
         self.assertEquals(len(Routine.objects.all()), assertion_length)
     
-    def test_POST_no_content(self):
+    def test_routines_list_POST_no_content(self):
 
         new_routine = {}
 
@@ -523,7 +576,7 @@ class TestRoutinesViews(TestCase):
         self.assertEquals(response.data['msg'], 'No content submitted')
         self.assertEquals(len(Routine.objects.all()), current_routine_len)
     
-    def test_POST_invalid_key(self):
+    def test_routines_list_POST_invalid_key(self):
         new_routine = {
             'Invalid Key': 'test name',
             'RoutineDays': []
@@ -536,7 +589,7 @@ class TestRoutinesViews(TestCase):
         self.assertEquals(response.data['msg'], 'Bad request')
         self.assertEquals(len(Routine.objects.all()), current_routines_len)
     
-    def test_POST_invalid_value(self):
+    def test_routines_list_POST_invalid_value(self):
         new_routine = {
             'RoutineName': 'Routine to test',
             'RoutineDays': 'Invalid key'
@@ -549,12 +602,38 @@ class TestRoutinesViews(TestCase):
         self.assertEquals(response.data['msg'], 'Bad request')
         self.assertEquals(len(Routine.objects.all()), current_routines_len)
     
-    def test_GET_routines(self):
+    def test_routines_list_GET_routines(self):
 
         response = self.client.get(self.routines_url)
 
         self.assertEquals(response.status_code, 200)
         self.assertGreater(len(response.json()['routines']), 0)
+
+    def test_routines_list_GET_relevant_filter_queries(self):
+        inital_count = Routine.objects.count()
+
+        response_1 = self.client.get(self.routines_url, {"RoutineName": "placeholder"})
+        response_2 = self.client.get(self.routines_url)
+
+        self.assertEquals(response_1.status_code, 200)
+        self.assertEquals(len(response_1.json()['routines']), 1)
+
+        self.assertEquals(response_2.status_code, 200)
+        self.assertEquals(len(response_2.json()['routines']), inital_count)
+
+    def test_routines_list_GET_invalid_filter_queries(self):
+
+        response = self.client.get(self.routines_url, {"not_a_field": "placeholder"})
+
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.json()['msg'], "Bad query")
+    
+    def test_routines_list_GET_empty_filter_queries(self):
+
+        response = self.client.get(self.routines_url, {"RoutineName": "not in any routine"})
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(response.json()['routines']), 0)
 
     def test_routine_detail_GET(self):
         response = self.client.get(self.routine_detail_url)

@@ -10,17 +10,16 @@ from rest_framework import status
 @api_view(['GET', 'POST'])
 def exercise_list(request, format=None):
     if request.method == 'GET':
-        # print('request.GET: ', request.GET.get("ExerciseName"))
-        # print('request.GET: ', request.GET)
-        exercises = Exercises.objects.all()
 
         if not request.query_params: # query dict is empty
             exercises = Exercises.objects.all()
-            serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
-            return JsonResponse({'exercises': serializer.data})
         else:
             # validate the query, then filter based on results
             valid_params = ['ExerciseName', 'Muscle', 'Equipment']
+
+            # querydict keys converted to list, check if present in valid params
+            if list(request.query_params.keys())[0] not in valid_params:
+                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
 
             if 'ExerciseName' in request.query_params:
                 value = request.query_params.get('ExerciseName')
@@ -31,11 +30,9 @@ def exercise_list(request, format=None):
             elif 'Equipment' in request.query_params:
                 value = request.query_params.get('Equipment')
                 exercises = Exercises.objects.filter(Equipment__contains=value)
-            else:
-                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
             
-            serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
-            return JsonResponse({'exercises': serializer.data})
+        serializer = ExerciseSerializer(exercises, many=True)    # many=True to serialize whole list
+        return JsonResponse({'exercises': serializer.data})
     
     elif request.method == 'POST':
 
@@ -46,17 +43,6 @@ def exercise_list(request, format=None):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-""" Param testing
-- Need to make sure that the params passed are valid
-- need to make sure datatype is valid
-    - store valid params in a object {param_name: 'datatype'}
-    - or store param names in an array and .toString() values
-
-
-- 404 test not needed, if it doesn't exist return empty array
-
- """
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def exercise_detail(request, id, format=None):
@@ -87,7 +73,19 @@ def exercise_detail(request, id, format=None):
 @api_view(['GET', 'POST'])
 def day_list(request, format=None):
     if request.method == 'GET':
-        days = Day.objects.all()
+
+        if not request.query_params:
+            days = Day.objects.all()
+
+        else:
+            valid_params = ['DayName']
+
+            if list(request.query_params.keys())[0] not in valid_params:
+                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
+
+            value = request.query_params.get('DayName')
+            days = Day.objects.filter(DayName__contains=value)
+
         serializer = DaySerializer(days, many=True)
         return JsonResponse({'days': serializer.data})
     
@@ -158,7 +156,19 @@ def day_detail(request, id, format=None):
 @api_view(['GET', 'POST'])
 def routine_list(request, format=None):
     if request.method == 'GET':
-        routines = Routine.objects.all()
+
+        if not request.query_params:
+            routines = Routine.objects.all()
+
+        else:
+            valid_params = ['RoutineName']
+
+            if list(request.query_params.keys())[0] not in valid_params:
+                return Response({"msg": "Bad query"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            value = request.query_params.get('RoutineName')
+            routines = Routine.objects.filter(RoutineName__contains=value)
+
         serializer = RoutineSerializer(routines, many=True)
         return JsonResponse({'routines': serializer.data})
 
