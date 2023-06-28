@@ -7,7 +7,6 @@ class ExerciseSerializer(serializers.ModelSerializer):
         fields = ['ExerciseId', 'ExerciseName', 'Muscle', 'Equipment', 'Instructions']
 
 class DaySerializer(serializers.ModelSerializer):
-    
     DayExercises = ExerciseSerializer(many=True, default=[])
 
     class Meta:
@@ -34,7 +33,6 @@ class DaySerializer(serializers.ModelSerializer):
         return instance
 
 class RoutineSerializer(serializers.ModelSerializer):
-
     RoutineDays = DaySerializer(many=True, default=[])
 
     class Meta:

@@ -5,6 +5,8 @@ from WorkoutAPI.serializers import ExerciseSerializer, DaySerializer, RoutineSer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+import json
+import os.path
 
 # Create your views here.
 @api_view(['GET', 'POST'])
@@ -89,8 +91,7 @@ def day_list(request, format=None):
         serializer = DaySerializer(days, many=True)
         return JsonResponse({'days': serializer.data})
     
-    elif request.method == 'POST':
-            
+    elif request.method == 'POST':  
         if not bool(request.data):
             return Response({"msg": "No content submitted"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -188,7 +189,6 @@ def routine_list(request, format=None):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def routine_detail(request, id, format=None):
-    
     try:
         routine = Routine.objects.get(pk=id)
     except Routine.DoesNotExist:
@@ -230,4 +230,9 @@ def routine_detail(request, id, format=None):
         routine.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    return Response({"msg": "/routines/<int:id>"})
+@api_view(['GET'])
+def endpoints(request, format=None):
+    with open(os.path.dirname(__file__) + '/../endpoints.json') as endpoints_file:
+        file_contents = endpoints_file.read()
+    
+    return JsonResponse(json.loads(file_contents))

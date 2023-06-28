@@ -793,9 +793,16 @@ class TestRoutinesViews(TestCase):
         self.assertEquals(response.data['msg'], "Bad request")
         self.assertEquals(target_count, len(self.routine_example.RoutineDays.all()))
 
+class TestEndpointsViews(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.endpoints_url = reverse('endpoints')
+    
+    def test_endpoints_GET(self):
+        response = self.client.get(self.endpoints_url)
 
-
-
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(bool(response.json()), True)
 
 
 

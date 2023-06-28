@@ -1,6 +1,6 @@
 from django.test import SimpleTestCase
 from django.urls import reverse, resolve
-from ExercisesApp.views import exercise_list, exercise_detail, day_list, day_detail, routine_list, routine_detail
+from ExercisesApp.views import exercise_list, exercise_detail, day_list, day_detail, routine_list, routine_detail, endpoints
 
 class TestExerciseUrls(SimpleTestCase):
 
@@ -32,3 +32,8 @@ class TestRoutinesUrls(SimpleTestCase):
         url = reverse('routine_detail', args=[1])
         self.assertEquals(resolve(url).func, routine_detail)
 
+class TestAPIUrl(SimpleTestCase):
+
+    def test_api_resolves(self):
+        url = reverse('endpoints')
+        self.assertEquals(resolve(url).func, endpoints)
