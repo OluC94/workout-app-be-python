@@ -188,7 +188,6 @@ def routine_list(request, format=None):
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def routine_detail(request, id, format=None):
-    
     try:
         routine = Routine.objects.get(pk=id)
     except Routine.DoesNotExist:
@@ -231,3 +230,7 @@ def routine_detail(request, id, format=None):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     return Response({"msg": "/routines/<int:id>"})
+
+@api_view(['GET'])
+def endpoints(request, format=None):
+    return JsonResponse({"J": "SON"})
