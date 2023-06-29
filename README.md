@@ -1,6 +1,6 @@
 # Workout App - Backend
 
-This backend appliaction was developed using Django rest framework with full TDD to allow the user to create their own exercise routines
+This backend application was developed using Django rest framework with full TDD to allow the user to create their own exercise routines
 
 The user can perform CRUD operations for:
 
@@ -8,18 +8,11 @@ The user can perform CRUD operations for:
 - workout days, which can be populated using existing exercises
 - full routines, which can be populated using existing workout days
 
-The backend is hosted at `<link when ready>`
+The backend is hosted at `<url>`
 
 ## How to run this application locally
 
-### Minimum version requirements
-
-- Python: 3
-- Django: 4
-- Django Rest Framework: 3
-- Database: sqlite3
-
-### Instructions
+The minimum version of Python required is 3.10
 
 1. Create a fork of this repository and then create a clone using the command `git clone <repo-url>`
 2. Actiate the virtual environment using the command `source .venv/bin/activate`
