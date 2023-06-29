@@ -8,7 +8,7 @@ The user can perform CRUD operations for:
 - workout days, which can be populated using existing exercises
 - full routines, which can be populated using existing workout days
 
-The backend is hosted at `<url>`
+The backend is hosted at `<placeholder>`
 
 ## How to run this application locally
 
