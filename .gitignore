@@ -176,3 +176,4 @@ cython_debug/
 notes.md
 api_info.py
 my_secrets.py
+static
