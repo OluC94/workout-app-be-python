@@ -26,7 +26,7 @@ urlpatterns = [
     path('days/<int:id>', views.day_detail, name='day_detail'),
     path('routines/', views.routine_list, name='routines'),
     path('routines/<int:id>', views.routine_detail, name='routine_detail'),
-    path('api/', views.endpoints, name='endpoints'),
+    path('', views.endpoints, name='endpoints'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
